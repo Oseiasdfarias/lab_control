@@ -23,11 +23,11 @@ y = np.zeros(numAmostras)
 Ts = 0.02
 
 fre = 0.5
-Amplitude = 0.5
-setpoint = 5.5
-#a = 2*np.ones(int(numAmostras/2))
-#b = 4*np.ones(int(numAmostras/2))
-#u = np.concatenate([a,b]) #degrau
+Amplitude = 1.0
+setpoint = 7.5
+# a = 2*np.ones(int(numAmostras/2))
+# b = 4*np.ones(int(numAmostras/2))
+# u = np.concatenate([a,b]) #degrau
 r = np.zeros(numAmostras)
 toc = np.zeros(numAmostras)
 ######################
@@ -38,7 +38,7 @@ for n in range(numAmostras):
     # r[n] = Amplitude*sawtooth(2*np.pi*fre*n*Ts) + setpoint
     # r[n] = Amplitude*np.sin(2*np.pi*fre*n*Ts) + setpoint
     # r[n] = u[n]
-    
+
 print('\nEstabelecendo conexão.')
 conexao = serial.Serial(port='COM8', baudrate=9600, timeout=0.005)
 
@@ -51,12 +51,12 @@ for n in range(numAmostras):
     if (conexao.inWaiting() > 0):
 
         y[n] = conexao.readline().decode()
-           
+
     u = (r[n]*255)/15
     conexao.write(str(round(u)).encode())
-    
+
     t.sleep(Ts)
-    
+
     if (n > 0):
         tempo[n] = tempo[n-1] + Ts
     toc[n] = t.time() - tic
@@ -88,4 +88,4 @@ plt.show()
 
 dados = np.stack((tempo, r, y), axis=-1)
 
-# np.savetxt("C:/Users/DTIC/Desktop/Laboratório de Controle/Motor_Gerador_Python/Dados01.csv", dados, delimiter=";")
+np.savetxt("C:/Users/Polly/OneDrive/Área de Trabalho/Oseias_ufpa/lab_control/Dados01.csv", dados, delimiter=";")
