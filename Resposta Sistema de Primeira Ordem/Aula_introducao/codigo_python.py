@@ -24,9 +24,9 @@ Ts = 0.02
 
 fre = 0.5
 Amplitude = 1.0
-setpoint = 7.5
+setpoint = 10.50
 # a = 2*np.ones(int(numAmostras/2))
-# b = 4*np.ones(int(numAmostras/2))
+# b = 4*np.ones(int(numAmostras/2))/dev/ttyACM0 
 # u = np.concatenate([a,b]) #degrau
 r = np.zeros(numAmostras)
 toc = np.zeros(numAmostras)
@@ -40,7 +40,7 @@ for n in range(numAmostras):
     # r[n] = u[n]
 
 print('\nEstabelecendo conexão.')
-conexao = serial.Serial(port='COM8', baudrate=9600, timeout=0.005)
+conexao = serial.Serial(port='/dev/ttyACM0', baudrate=9600, timeout=0.005)
 
 t.sleep(1)
 print('\nIniciando coleta.')
@@ -88,4 +88,5 @@ plt.show()
 
 dados = np.stack((tempo, r, y), axis=-1)
 
-np.savetxt("C:/Users/Polly/OneDrive/Área de Trabalho/Oseias_ufpa/lab_control/Dados01.csv", dados, delimiter=";")
+np.savetxt("70pc_dados_motorgerador.csv", dados, delimiter=";")
+# np.savetxt("C:/Users/Polly/OneDrive/Área de Trabalho/Oseias_ufpa/lab_control/Dados01.csv", dados, delimiter=";")
