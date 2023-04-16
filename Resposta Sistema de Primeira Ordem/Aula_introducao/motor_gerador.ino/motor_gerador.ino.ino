@@ -10,6 +10,8 @@ int pinoSentido2 = 8;
 void setup() {
   pinMode(pinoSentido1, OUTPUT);
   pinMode(pinoSentido2, OUTPUT);
+  digitalWrite(pinoSentido1, LOW);   // controle do sentido de rotação do motor
+  digitalWrite(pinoSentido2, HIGH);  // controle do sentido de rotação do motor  
   pinMode(pinoPWM, OUTPUT);
   Serial.begin(9600);
   Serial.setTimeout(5);
