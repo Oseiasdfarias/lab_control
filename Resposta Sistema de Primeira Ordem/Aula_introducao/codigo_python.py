@@ -24,7 +24,7 @@ Ts = 0.02
 
 fre = 0.5
 Amplitude = 1.0
-setpoint = 10.50
+setpoint = 7.5
 # a = 2*np.ones(int(numAmostras/2))
 # b = 4*np.ones(int(numAmostras/2))/dev/ttyACM0 
 # u = np.concatenate([a,b]) #degrau
@@ -63,19 +63,19 @@ for n in range(numAmostras):
 conexao.write('0'.encode())
 print('\nFim da coleta.')
 conexao.close()
-print('media=',np.mean(r))
+print('media=', np.mean(r))
 
 print('\nPeríodo real:', np.mean(toc))
-print('Nivel_DC:', np.mean(y[tempo  >2]))
+print('Nivel_DC:', np.mean(y[tempo > 2]))
 
-plt.figure(figsize=(10,10))
+plt.figure(figsize=(10, 10))
 plt.subplot(211)
 plt.plot(tempo, r, '-b', linewidth=1.2)
 plt.xlabel('Tempo(s)')
 plt.ylabel('Tensão (V)')
 plt.grid()
 plt.title('Onda Quadrada - Malha Aberta')
-plt.legend(loc='lower right', labels=('Sinal de Entrada','Sinal de Saída'))
+plt.legend(loc='lower right', labels=('Sinal de Entrada', 'Sinal de Saída'))
 
 plt.subplot(212)
 # plt.plot(tempo,r,'-b',tempo,y,'-r',linewidth=1.2)
@@ -88,5 +88,4 @@ plt.show()
 
 dados = np.stack((tempo, r, y), axis=-1)
 
-np.savetxt("70pc_dados_motorgerador.csv", dados, delimiter=";")
-# np.savetxt("C:/Users/Polly/OneDrive/Área de Trabalho/Oseias_ufpa/lab_control/Dados01.csv", dados, delimiter=";")
+np.savetxt("50pc_dados_motorgerador.csv", dados, delimiter=";")
