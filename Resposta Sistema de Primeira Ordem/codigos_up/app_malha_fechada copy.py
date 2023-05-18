@@ -44,7 +44,6 @@ for n in range(numAmostras):
 
 print('\nEstabelecendo conexão.')
 conexao = serial.Serial(port='COM4', baudrate=9600, timeout=0.005)
-
 t.sleep(1)
 print('\nIniciando coleta.')
 
