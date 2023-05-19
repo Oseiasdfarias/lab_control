@@ -32,10 +32,6 @@ ponto_de_operacao = 0
 
 nivel_dc_saida = 2.266
 
-# a = 2*np.ones(int(numAmostras/2))
-# b = 4*np.ones(int(numAmostras/2))
-# u = np.concatenate([a,b]) #degrau
-
 r = np.zeros(numAmostras)
 u = np.zeros(numAmostras)
 
@@ -44,15 +40,9 @@ toc = np.zeros(numAmostras)
 
 for n in range(numAmostras):
     r[n] = Amplitude*square(2*np.pi*fre*n*Ts)
-    # r[n] = Amplitude*sawtooth(2*np.pi*fre*n*Ts) + setpoint
-    # r[n] = Amplitude*np.sin(2*np.pi*fre*n*Ts) + setpoint
-    # r[n] = u[n]
-
-# print('\nEstabelecendo conexão.')
-# conexao = serial.Serial(port='COM5', baudrate=9600, timeout=0.005)
 
 print('\nEstabelecendo conexão.')
-# conexao = serial.Serial(port='/dev/ttyACM0', baudrate=9600, timeout=0.005)
+# Linux: port='/dev/ttyACM0'
 conexao = serial.Serial(port='COM8', baudrate=9600, timeout=0.005)
 
 t.sleep(1)
@@ -81,16 +71,13 @@ for n in range(numAmostras):
         r[n] = 0.0
     else:
         u[n] = (Kp*e) + nivel_dc_entrada
-        # print("Valor de (Kp*e)", (Kp*e))
 
     if (u[n] > amplitude_maxima):
-        # print("Valor de u[n]", u[n])
         sinal_PWM = 255
     else:
         sinal_PWM = ((u[n])*255)/amplitude_maxima
     # sinal_PWM deve ser um número inteiro entre 0 e 255
     conexao.write(str(round(sinal_PWM)).encode())
-    # print("Sinal Controle PWM: ", sinal_PWM)
     t.sleep(Ts)
 
     if (n > 0):
@@ -116,7 +103,7 @@ plt.title('Onda Quadrada - Malha Aberta')
 plt.legend(loc='lower right', labels=('Sinal de Entrada', 'Sinal de Saída'))
 
 plt.subplot(212)
-plt.plot(tempo, r + nivel_dc_saida,'-b', tempo, y, '-r', linewidth=1.2)
+plt.plot(tempo, r + nivel_dc_saida, '-b', tempo, y, '-r', linewidth=1.2)
 # plt.plot(tempo, y, '-ro', linewidth=1.2)
 plt.xlabel('Tempo(s)')
 plt.ylabel('Tensão (V)')
@@ -132,5 +119,3 @@ dados = np.stack((tempo, r, y, u, r_ofessert), axis=-1)
 
 np.savetxt("controle_P_dados_motorgerador.csv", dados, delimiter=";")
 
-
-# np.savetxt("6_5_dados_motorgerador.csv", dados, delimiter=";")

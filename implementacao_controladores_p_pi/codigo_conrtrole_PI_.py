@@ -33,10 +33,6 @@ ponto_de_operacao = 0
 
 nivel_dc_saida = 2.266
 
-# a = 2*np.ones(int(numAmostras/2))
-# b = 4*np.ones(int(numAmostras/2))
-# u = np.concatenate([a,b]) #degrau
-
 r = np.zeros(numAmostras)
 u = np.zeros(numAmostras)
 
@@ -45,31 +41,18 @@ toc = np.zeros(numAmostras)
 
 for n in range(numAmostras):
     r[n] = Amplitude*square(2*np.pi*fre*n*Ts)
-    # r[n] = Amplitude*sawtooth(2*np.pi*fre*n*Ts) + setpoint
-    # r[n] = Amplitude*np.sin(2*np.pi*fre*n*Ts) + setpoint
-    # r[n] = u[n]
-
-# print('\nEstabelecendo conexão.')
-# conexao = serial.Serial(port='COM5', baudrate=9600, timeout=0.005)
 
 print('\nEstabelecendo conexão.')
-# conexao = serial.Serial(port='/dev/ttyACM0', baudrate=9600, timeout=0.005)
+# port='/dev/ttyACM0'
 conexao = serial.Serial(port='COM8', baudrate=9600, timeout=0.005)
 
 t.sleep(1)
 print('\nIniciando coleta.')
 
-# #_____________ Loop principal de controle _____________##
+# _____________ Loop principal de controle _____________#
 nivel_dc_entrada = 7.5
 
 # Ganho do Controlador Proporcional
-
-uk = 0.0
-uk1 = 0.0
-ek = 0.0
-ek1 = 0.0
-k = 0.0
-
 for n in range(numAmostras):
     tic = t.time()
     if (conexao.inWaiting() > 0):
@@ -93,7 +76,7 @@ for n in range(numAmostras):
         sinal_PWM = 255
     else:
         sinal_PWM = ((u[n])*255)/amplitude_maxima
-        sinal_PWM += 127.5
+        sinal_PWM += 127
     # sinal_PWM deve ser um número inteiro entre 0 e 255
 
     conexao.write(str(round(sinal_PWM)).encode())
@@ -123,7 +106,7 @@ plt.title('Onda Quadrada - Malha Aberta')
 plt.legend(loc='lower right', labels=('Sinal de Entrada', 'Sinal de Saída'))
 
 plt.subplot(212)
-plt.plot(tempo, r + nivel_dc_saida,'-b', tempo, y, '-r', linewidth=1.2)
+plt.plot(tempo, r + nivel_dc_saida, '-b', tempo, y, '-r', linewidth=1.2)
 # plt.plot(tempo, y, '-ro', linewidth=1.2)
 plt.xlabel('Tempo(s)')
 plt.ylabel('Tensão (V)')
@@ -134,5 +117,4 @@ plt.show()
 r_ofessert = r + nivel_dc_saida
 
 dados = np.stack((tempo, r, y, e, u, r_ofessert), axis=-1)
-
 np.savetxt("controle_PI_dados_motorgerador.csv", dados, delimiter=";")
