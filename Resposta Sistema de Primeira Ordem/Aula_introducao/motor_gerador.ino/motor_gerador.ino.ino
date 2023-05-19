@@ -1,4 +1,4 @@
-int pinoAD = A7;
+int pinoAD = A9;
 int pinoPWM = 9;
 
 int valorAD = 0;

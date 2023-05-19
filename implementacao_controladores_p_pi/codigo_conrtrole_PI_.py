@@ -23,6 +23,7 @@ amplitude_maxima = 15
 numAmostras = 400
 tempo = np.zeros(numAmostras)
 y = np.zeros(numAmostras)
+e = np.zeros(numAmostras)
 
 Ts = 0.02
 
@@ -62,8 +63,12 @@ print('\nIniciando coleta.')
 nivel_dc_entrada = 7.5
 
 # Ganho do Controlador Proporcional
-# Kp = 2.296  # Valor de projeto
-Kp = 5.5
+
+uk = 0.0
+uk1 = 0.0
+ek = 0.0
+ek1 = 0.0
+k = 0.0
 
 for n in range(numAmostras):
     tic = t.time()
@@ -73,14 +78,14 @@ for n in range(numAmostras):
     # remove o nivel_dc_saida
     sinal_medido = y[n] - nivel_dc_saida
     # calcula o erro
-    e = r[n] - sinal_medido
+    e[n] = r[n] - sinal_medido
 
     # primeiras 50 amostras
     if (n < 50):
         u[n] = nivel_dc_entrada
         r[n] = 0.0
     else:
-        u[n] = (Kp*e) + nivel_dc_entrada
+        u[n] = (u[n-1] + 2.404*e[n] - 1.331*e[n-1])
         # print("Valor de (Kp*e)", (Kp*e))
 
     if (u[n] > amplitude_maxima):
@@ -88,7 +93,9 @@ for n in range(numAmostras):
         sinal_PWM = 255
     else:
         sinal_PWM = ((u[n])*255)/amplitude_maxima
+        sinal_PWM += 127.5
     # sinal_PWM deve ser um número inteiro entre 0 e 255
+
     conexao.write(str(round(sinal_PWM)).encode())
     # print("Sinal Controle PWM: ", sinal_PWM)
     t.sleep(Ts)
@@ -124,13 +131,8 @@ plt.grid()
 # plt.title('Tensão de Saída - Malha Aberta')
 plt.show()
 
-dados = np.stack((tempo, r, y), axis=-1)
-
 r_ofessert = r + nivel_dc_saida
 
-dados = np.stack((tempo, r, y, u, r_ofessert), axis=-1)
+dados = np.stack((tempo, r, y, e, u, r_ofessert), axis=-1)
 
-np.savetxt("controle_P_dados_motorgerador.csv", dados, delimiter=";")
-
-
-# np.savetxt("6_5_dados_motorgerador.csv", dados, delimiter=";")
+np.savetxt("controle_PI_dados_motorgerador.csv", dados, delimiter=";")
