@@ -16,6 +16,28 @@ import time as t
 from scipy.signal import square, sawtooth  # noqa: F401
 import serial
 
+
+##################### Sinal PRBS ###################
+def PRBS(size_min_seq, size):
+    rand = np.random.randint(0, 10, size=size)
+    prbs = []
+    for i in range(size):
+        if rand[i] > 5:
+            prbs.append(np.ones(size_min_seq))
+        else:
+            prbs.append(np.zeros(size_min_seq))
+    prbs = np.array(prbs).reshape(size*size_min_seq)[0:size]
+    return prbs
+
+prbs = PRBS(size_min_seq=2**3, size=1024)
+numAmostras = len(prbs)
+r = np.zeros(numAmostras)
+
+tempo = np.linspace(0,4,1024)
+
+for n in range(numAmostras):
+    r[n] = prbs[n]
+
 ##########################################
 # Tensão de alimentação da bancada
 amplitude_maxima = 15
@@ -23,7 +45,6 @@ amplitude_maxima = 15
 numAmostras = 400
 tempo = np.zeros(numAmostras)
 y = np.zeros(numAmostras)
-e = np.zeros(numAmostras)
 
 Ts = 0.02
 
@@ -37,14 +58,14 @@ nivel_dc_saida = 2.266
 # b = 4*np.ones(int(numAmostras/2))
 # u = np.concatenate([a,b]) #degrau
 
-r = np.zeros(numAmostras)
+# r = np.zeros(numAmostras)
 u = np.zeros(numAmostras)
 
 toc = np.zeros(numAmostras)
 # #####################
 
-for n in range(numAmostras):
-    r[n] = Amplitude*square(2*np.pi*fre*n*Ts)
+# for n in range(numAmostras):
+#    r[n] = Amplitude*square(2*np.pi*fre*n*Ts)
     # r[n] = Amplitude*sawtooth(2*np.pi*fre*n*Ts) + setpoint
     # r[n] = Amplitude*np.sin(2*np.pi*fre*n*Ts) + setpoint
     # r[n] = u[n]
@@ -63,12 +84,8 @@ print('\nIniciando coleta.')
 nivel_dc_entrada = 7.5
 
 # Ganho do Controlador Proporcional
-
-uk = 0.0
-uk1 = 0.0
-ek = 0.0
-ek1 = 0.0
-k = 0.0
+# Kp = 2.296  # Valor de projeto
+Kp = 5.5
 
 for n in range(numAmostras):
     tic = t.time()
@@ -78,14 +95,14 @@ for n in range(numAmostras):
     # remove o nivel_dc_saida
     sinal_medido = y[n] - nivel_dc_saida
     # calcula o erro
-    e[n] = r[n] - sinal_medido
+    e = r[n] - sinal_medido
 
     # primeiras 50 amostras
     if (n < 50):
         u[n] = nivel_dc_entrada
         r[n] = 0.0
     else:
-        u[n] = (u[n-1] + 2.404*e[n] - 1.331*e[n-1])
+        u[n] = (Kp*e) + nivel_dc_entrada
         # print("Valor de (Kp*e)", (Kp*e))
 
     if (u[n] > amplitude_maxima):
@@ -93,9 +110,7 @@ for n in range(numAmostras):
         sinal_PWM = 255
     else:
         sinal_PWM = ((u[n])*255)/amplitude_maxima
-        sinal_PWM += 127.5
     # sinal_PWM deve ser um número inteiro entre 0 e 255
-
     conexao.write(str(round(sinal_PWM)).encode())
     # print("Sinal Controle PWM: ", sinal_PWM)
     t.sleep(Ts)
@@ -119,7 +134,7 @@ plt.plot(tempo, u, '-b', linewidth=1.2)
 plt.xlabel('Tempo(s)')
 plt.ylabel('Tensão (V)')
 plt.grid()
-plt.title('Onda Quadrada - Malha Fechada')
+plt.title('Onda Quadrada - Malha Aberta')
 plt.legend(loc='lower right', labels=('Sinal de Entrada', 'Sinal de Saída'))
 
 plt.subplot(212)
@@ -131,8 +146,13 @@ plt.grid()
 # plt.title('Tensão de Saída - Malha Aberta')
 plt.show()
 
+dados = np.stack((tempo, r, y), axis=-1)
+
 r_ofessert = r + nivel_dc_saida
 
-dados = np.stack((tempo, r, y, e, u, r_ofessert), axis=-1)
+dados = np.stack((tempo, r, y, u, r_ofessert), axis=-1)
 
-np.savetxt("controle_PI_dados_motorgerador.csv", dados, delimiter=";")
+np.savetxt("controle_P_dados_motorgerador.csv", dados, delimiter=";")
+
+
+# np.savetxt("6_5_dados_motorgerador.csv", dados, delimiter=";")
