@@ -1,1 +1,1 @@
-# lab_control
+# Laboratório de Controle de Sistema
