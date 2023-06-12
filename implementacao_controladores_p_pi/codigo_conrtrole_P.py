@@ -25,7 +25,6 @@ tempo = np.zeros(numAmostras)
 y = np.zeros(numAmostras)
 
 Ts = 0.02
-
 fre = 0.5
 Amplitude = 0.5
 ponto_de_operacao = 0
@@ -52,26 +51,23 @@ print('\nIniciando coleta.')
 nivel_dc_entrada = 7.5
 
 # Ganho do Controlador Proporcional
-# Kp = 2.296  # Valor de projeto
-Kp = 5.5
+Kp = 2.296  # Valor de projeto
+# Kp = 5.5
 
 for n in range(numAmostras):
     tic = t.time()
     if (conexao.inWaiting() > 0):
         y[n] = conexao.readline().decode()
-
     # remove o nivel_dc_saida
     sinal_medido = y[n] - nivel_dc_saida
     # calcula o erro
     e = r[n] - sinal_medido
-
     # primeiras 50 amostras
     if (n < 50):
         u[n] = nivel_dc_entrada
         r[n] = 0.0
     else:
         u[n] = (Kp*e) + nivel_dc_entrada
-
     if (u[n] > amplitude_maxima):
         sinal_PWM = 255
     else:
